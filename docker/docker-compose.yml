@@ -1,0 +1,59 @@
+version: '3.8'
+services:
+
+    #PHP Service
+    iq_devs_auth_fpm:
+        build:
+            context: ./php
+            dockerfile: ./Dockerfile
+        image: digitalocean.com/php
+        container_name: iq_devs_auth_fpm
+        restart: unless-stopped
+        tty: true
+        env_file:
+            - ../.env
+        working_dir: /var/www
+        volumes:
+            - ../:/var/www
+        networks:
+            - iq_devs_auth-network
+
+    #Nginx Service
+    iq_devs_auth:
+        image: nginx:alpine
+        container_name: iq_devs_auth
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "7081:80"
+        volumes:
+            - ../:/var/www
+            - ./nginx/conf.d/:/etc/nginx/conf.d/
+        networks:
+            - iq_devs_auth-network
+
+    #MySQL Service
+    iq_devs_auth_db:
+        image: mariadb
+        container_name: iq_devs_auth_db
+        restart: unless-stopped
+        tty: true
+        environment:
+            MYSQL_DATABASE: laravel
+            MYSQL_ROOT_PASSWORD: password
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mysql
+        volumes:
+            - dbdata:/var/lib/mysql/
+            - ./mysql/my.cnf:/etc/mysql/my.cnf
+        networks:
+            - iq_devs_auth-network
+
+#Docker Networks
+networks:
+    iq_devs_auth-network:
+        driver: bridge
+#Volumes
+volumes:
+    dbdata:
+        driver: local
