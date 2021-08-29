@@ -14,6 +14,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
 use JWTAuth;
 use Validator;
+use Auth;
 
 class ApiController extends Controller
 {
@@ -82,7 +83,29 @@ class ApiController extends Controller
         $user->save();
         $token = JWTAuth::attempt(['email' => $user->email, 'password' => $data['password']]);
 
-        return $this->success(['success' => true, 'token' => $token]);
+        return $this->success(['success' => true, 'token' => $token, 'id' => $user->id]);
+    }
+
+    /**
+     * @param $userId
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function userById($userId, Request $request) {
+        /** @var User $user */
+        $user = User::query()
+            ->where('id', '=', $userId)
+            ->first();
+
+        if (!$user) {
+            return $this->error("User #{$userId} not found!");
+        }
+
+        return $this->success([
+            'id' => $user->id,
+            'inn' => $user->inn,
+            'name' => $user->company_name
+        ]);
     }
 
     /**
@@ -101,9 +124,12 @@ class ApiController extends Controller
             return $this->error("Could not create token.");
         }
 
+        $currentUser = Auth::user();
+
         return $this->success([
             'success' => true,
-            'token' => $token
+            'token' => $token,
+            'id' => $currentUser->id,
         ]);
     }
 
@@ -134,7 +160,8 @@ class ApiController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function check() {
-        return $this->success(['success' => true]);
+        $currentUser = Auth::user();
+        return $this->success(['success' => true, 'id' => $currentUser->id]);
     }
 
     /**
