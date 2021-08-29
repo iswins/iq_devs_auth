@@ -6,7 +6,7 @@ services:
         build:
             context: ./php
             dockerfile: ./Dockerfile
-        image: digitalocean.com/php
+        image: iq_devs_auth_fpm
         container_name: iq_devs_auth_fpm
         restart: unless-stopped
         tty: true
