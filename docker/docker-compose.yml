@@ -44,7 +44,7 @@ services:
             SERVICE_TAGS: dev
             SERVICE_NAME: mysql
         volumes:
-            - dbdata:/var/lib/mysql/
+            - /var/lib/mysql_auth:/var/lib/mysql/
             - ./mysql/my.cnf:/etc/mysql/my.cnf
         networks:
             - iq_devs_auth-network
@@ -53,7 +53,3 @@ services:
 networks:
     iq_devs_auth-network:
         driver: bridge
-#Volumes
-volumes:
-    dbdata:
-        driver: local

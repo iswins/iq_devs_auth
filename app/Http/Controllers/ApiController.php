@@ -52,23 +52,23 @@ class ApiController extends Controller
         } catch (ConnectException $exception) {
             return $this->error("Company checking service is unavailable", 500);
         } catch (ServiceException $exception) {
-            return $this->error([
+            return response()->json([
                 'message' => null,
                 'fields' => [
                     ['field' => 'inn', 'error' => $exception->getMessage()]
                 ]
-            ]);
+            ], 400);
         } catch (\Exception $exception) {
             return $this->error($exception->getMessage(), 500);
         }
 
         if (!$companyCheck['is_operating']) {
-            return $this->error([
+            return response()->json([
                 'message' => null,
                 'fields' => [
                     ['field' => 'inn', 'error' => "Company isn't operating"]
                 ]
-            ]);
+            ], 400);
         }
 
         $companyName = $companyCheck['name'];
@@ -106,6 +106,17 @@ class ApiController extends Controller
             'inn' => $user->inn,
             'name' => $user->company_name
         ]);
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function logout(Request $request) {
+        $token = $request->header( 'Authorization' );
+        JWTAuth::parseToken()->invalidate( $token );
+
+        return $this->success(['success' => true]);
     }
 
     /**
