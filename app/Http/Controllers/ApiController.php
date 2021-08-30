@@ -35,7 +35,6 @@ class ApiController extends Controller
             ],
             'inn' => [
                 'required',
-                'digits:10',
                 Rule::unique('users'),
             ],
             'password' => 'required|min:4'
